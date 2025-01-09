@@ -149,6 +149,36 @@ describe('DappnodeSmoothingPool test', () => {
             .withArgs(deployer.address, validatorID);
     });
 
+    it('Should ban and unbann a validator and unsubscribe', async () => {
+        const validatorID = 1;
+        const validatorID2 = 10;
+        const validatorID3 = 12;
+
+        // ban validators
+        await expect(dappnodeSmoothingPool.connect(deployer).banValidators([validatorID]))
+            .to.be.revertedWith('DappnodeSmoothingPool::onlyGovernance: Only governance');
+
+        await expect(dappnodeSmoothingPool.connect(governance).banValidators([validatorID, validatorID2, validatorID3]))
+            .to.emit(dappnodeSmoothingPool, 'BanValidator')
+            .withArgs(validatorID)
+            .to.emit(dappnodeSmoothingPool, 'BanValidator')
+            .withArgs(validatorID2)
+            .to.emit(dappnodeSmoothingPool, 'BanValidator')
+            .withArgs(validatorID3);
+
+        // unabn validators
+        await expect(dappnodeSmoothingPool.connect(deployer).unbanValidators([validatorID]))
+            .to.be.revertedWith('DappnodeSmoothingPool::onlyGovernance: Only governance');
+
+        await expect(dappnodeSmoothingPool.connect(governance).unbanValidators([validatorID, validatorID2, validatorID3]))
+            .to.emit(dappnodeSmoothingPool, 'UnbanValidator')
+            .withArgs(validatorID)
+            .to.emit(dappnodeSmoothingPool, 'UnbanValidator')
+            .withArgs(validatorID2)
+            .to.emit(dappnodeSmoothingPool, 'UnbanValidator')
+            .withArgs(validatorID3);
+    });
+
     it('Should suscribe multiple validators', async () => {
         const validatorID = 1;
         const validatorID2 = 10;
